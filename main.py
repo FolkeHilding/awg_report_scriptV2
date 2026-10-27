@@ -211,7 +211,7 @@ def main(days, weekly, test_model=None, test_email=None):
             # Intercept machine-specific emails if testing
             active_emails = real_emails
             if test_email:
-                print(f"⚠️  TEST MODE ({model}): Diverting emails")
+                print(f"   TEST MODE ({model}): Diverting emails")
                 print(f"   Original: {real_emails}")
                 print(f"   Diverted to: [{test_email}]")
                 active_emails = [test_email]
