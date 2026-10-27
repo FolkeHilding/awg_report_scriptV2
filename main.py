@@ -39,13 +39,9 @@ def modify_prefName(prefName):
     clean_prefName = re.sub(r'[^A-Za-z0-9_]', '', prefName)
     return clean_prefName
 
-def upload_to_s3(test_mode=False):
+def upload_to_s3():
     """Back up generated files to S3."""
-    if test_mode:
-        print("⚠️ TEST MODE: Skipping S3 upload to keep test files out of production bucket.")
-        return
-
-    bucket_name = "awg-machine-reports-prod"  # <-- Updated to your new bucket!
+    bucket_name = "awg-machine-reports-prod"  # <-- Make sure this matches your bucket!
     s3_client = boto3.client('s3', region_name='eu-north-1')
     directories = ["data", "plots", "logs", "pdf", "reports"]
 
@@ -229,9 +225,8 @@ def main(days, weekly, test_model=None, test_email=None):
         if csv_filepath: 
             send_ses_email(summary_recipients, f"Weekly Machine Performance Summary - {datetime.now().strftime('%Y-%m-%d')}", "Please find the weekly machine performance summary attached.", csv_filepath)
             
-    # If a test_email is provided, we assume test mode and skip pushing to S3
-    is_test_mode = bool(test_email or test_model)
-    upload_to_s3(test_mode=is_test_mode)
+    # Upload to S3 (Executes for both test and production runs)
+    upload_to_s3()
 
 
 if __name__ == "__main__":
