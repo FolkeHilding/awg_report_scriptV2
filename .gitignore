@@ -1,0 +1,9 @@
+# Ignore generated files and directories
+data/
+plots/
+logs/
+pdf/
+reports/
+__pycache__/
+*.pyc
+.env
