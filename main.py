@@ -8,7 +8,7 @@ from pathlib import Path
 from datetime import datetime
 
 # --- NATIVE IMPORTS ---
-from fetch_info import get_info_list, get_single_prefName
+from fetch_info import get_info_list
 from fetch_data import fetch_data, fetch_additional_data
 from pdf_gen import create_pdf_with_plots
 from send_email import send_email as send_ses_email
@@ -45,7 +45,7 @@ def upload_to_s3(test_mode=False):
         print("⚠️ TEST MODE: Skipping S3 upload to keep test files out of production bucket.")
         return
 
-    bucket_name = "awg-machine-reports-storage"
+    bucket_name = "awg-machine-reports-prod"  # <-- Updated to your new bucket!
     s3_client = boto3.client('s3', region_name='eu-north-1')
     directories = ["data", "plots", "logs", "pdf", "reports"]
 
@@ -56,11 +56,13 @@ def upload_to_s3(test_mode=False):
         for root, dirs, files in os.walk(directory):
             for file in files:
                 local_path = os.path.join(root, file)
+                # Ensure correct forward slash formatting for S3 keys regardless of OS
                 s3_key = local_path.replace("\\", "/")
                 try:
                     s3_client.upload_file(local_path, bucket_name, s3_key)
+                    print(f" Uploaded {local_path} to s3://{bucket_name}/{s3_key}")
                 except Exception as e:
-                    print(f"Failed to upload {local_path}: {e}")
+                    print(f" Failed to upload {local_path}: {e}")
     print("S3 upload complete.")
 
 def write_summary_csv(all_machines_data):
