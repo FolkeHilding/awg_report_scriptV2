@@ -50,11 +50,22 @@ def send_email(receiver_emails, subject, body_text, attachment_path=None):
         msg.attach(part)
 
     ses_client = boto3.client("ses", region_name="eu-north-1")
+    
     for receiver_email in receiver_emails:
+        # Prevent "To" headers from stacking up during the loop
+        if "To" in msg:
+            del msg["To"]
         msg["To"] = receiver_email
-        response = ses_client.send_raw_email(
-            Source=sender_email,
-            Destinations=[receiver_email],
-            RawMessage={"Data": msg.as_string()}
-        )
-        print(f"Email with subject '{subject}' sent to {receiver_email}! Message ID: {response['MessageId']}")
+        
+        try:
+            response = ses_client.send_raw_email(
+                Source=sender_email,
+                Destinations=[receiver_email],
+                RawMessage={"Data": msg.as_string()}
+            )
+            print(f"Email with subject '{subject}' sent to {receiver_email}! Message ID: {response['MessageId']}")
+            
+        except Exception as e:
+            # If SES rejects a bad email, log the error and move to the next person safely
+            print(f"ERROR: Failed to send email to '{receiver_email}'. Reason: {e}")
+            
