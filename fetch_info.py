@@ -24,12 +24,12 @@ def get_info_list():
             # Safely handle empty strings for adminPrefName
             pref_name = item.get('adminPrefName', {}).get('S', '').strip() or model_id
             
-            # Use serviceContact for all communications
-            service_contact = item.get('serviceContact', {}).get('S', '').strip()
+            # Extract the reportList array instead of serviceContact
+            report_list_raw = item.get('reportList', {}).get('L', [])
+            report_emails = [e.get('S', '').strip() for e in report_list_raw if e.get('S', '').strip()]
             
             parts = [model_id, pref_name]
-            if service_contact:
-                parts.append(service_contact)
+            parts.extend(report_emails) # Adds all valid report emails to the list
                 
             combined_entry = ", ".join(parts)
             combined_list.append(combined_entry)
